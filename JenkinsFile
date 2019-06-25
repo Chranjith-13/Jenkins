@@ -1,48 +1,47 @@
 node {
 
    stage('Preparation') {           
-         mvnHome = tool 'Maven3.5.3'
-	    }
-	        stage ('Checkout-ForectCoc'){
-		        checkout([$class: 'GitSCM', branches: [[name: '*/acceptance']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'ForestCoC']], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '013c7e09-d383-4733-8c66-568025fcfa02', url: 'http://gitlab.vanenburgsoftware.com/nrd/ForestCoC.git']]])
-			    }
-			    	
-					stage ('Checkout-ForectCoc_Mobile'){
-					        checkout([$class: 'GitSCM', branches: [[name: '*/acceptance']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'ForestCoC_Mobile']], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '013c7e09-d383-4733-8c66-568025fcfa02', url: 'http://gitlab.vanenburgsoftware.com/nrd/forestcoc_mobile.git']]])
-						    }
-						       stage('Build') {
-						               
-							            dir ('ForestCoC') {
-								             sh "'${mvnHome}/bin/mvn' clean install -Pdeployment"
-									           }
-										         
-											 	dir ('ForestCoC_Mobile') {
-												         sh "'${mvnHome}/bin/mvn' clean install -Pdeployment"
-													       }
-													              
-														         }   
-															   
-															     stage('Transfer-ForestCoC'){
-															       
-															       	sshPublisher(publishers: [sshPublisherDesc(configName: 'NRD_Build store', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '''#!/bin/bash
-																	now="$(date +"%Y-%m-%d")"
-																		mkdir -p /home/Nrd/build/AT/Complete_Build/$now
-																			rm -rf /home/Nrd/build/AT/Complete_Build/$now/*
-																				mv /home/Nrd/build/AT/Complete_Build/ForestCoC.war /home/Nrd/build/AT/Complete_Build/$now/ForestCoC.war''', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'AT/Complete_Build', remoteDirectorySDF: false, removePrefix: 'ForestCoC/target', sourceFiles: 'ForestCoC/target/ForestCoC.war')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
-																				}
+      mvnHome = tool 'Maven3.5.3'
+   }
+    stage ('Checkout-ForectCoc'){
+        checkout([$class: 'GitSCM', branches: [[name: '*/acceptance']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'ForestCoC']], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '013c7e09-d383-4733-8c66-568025fcfa02', url: 'http://gitlab.vanenburgsoftware.com/nrd/ForestCoC.git']]])
+    }
+	
+	stage ('Checkout-ForectCoc_Mobile'){
+        checkout([$class: 'GitSCM', branches: [[name: '*/acceptance']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'ForestCoC_Mobile']], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '013c7e09-d383-4733-8c66-568025fcfa02', url: 'http://gitlab.vanenburgsoftware.com/nrd/forestcoc_mobile.git']]])
+    }
+   stage('Build') {
+        
+     dir ('ForestCoC') {
+         sh "'${mvnHome}/bin/mvn' clean install -Pdeployment"
+      }
+      
+	dir ('ForestCoC_Mobile') {
+         sh "'${mvnHome}/bin/mvn' clean install -Pdeployment"
+      }
+       
+   }   
+  
+  stage('Transfer-ForestCoC'){
+  
+	sshPublisher(publishers: [sshPublisherDesc(configName: 'NRD_Build store', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '''#!/bin/bash
+	now="$(date +"%Y-%m-%d")"
+	mkdir -p /home/Nrd/build/AT/Complete_Build/$now
+	rm -rf /home/Nrd/build/AT/Complete_Build/$now/*
+	mv /home/Nrd/build/AT/Complete_Build/ForestCoC.war /home/Nrd/build/AT/Complete_Build/$now/ForestCoC.war''', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'AT/Complete_Build', remoteDirectorySDF: false, removePrefix: 'ForestCoC/target', sourceFiles: 'ForestCoC/target/ForestCoC.war')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+}
 
-																				  stage('Transfer-ForestCoC_Mobile'){
-																				    
-																				    	sshPublisher(publishers: [sshPublisherDesc(configName: 'NRD_Build store', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '''#!/bin/bash
-																						now="$(date +"%Y-%m-%d")"
-																							mkdir -p /home/Nrd/build/AT/Complete_Build/$now
-																								mv /home/Nrd/build/AT/Complete_Build/ForestCoC_Mobile.war /home/Nrd/build/AT/Complete_Build/$now/ForestCoC_Mobile.war''', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'AT/Complete_Build', remoteDirectorySDF: false, removePrefix: 'ForestCoC_Mobile/target', sourceFiles: 'ForestCoC_Mobile/target/ForestCoC_Mobile.war')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
-																									}
+  stage('Transfer-ForestCoC_Mobile'){
+  
+	sshPublisher(publishers: [sshPublisherDesc(configName: 'NRD_Build store', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '''#!/bin/bash
+	now="$(date +"%Y-%m-%d")"
+	mkdir -p /home/Nrd/build/AT/Complete_Build/$now
+	mv /home/Nrd/build/AT/Complete_Build/ForestCoC_Mobile.war /home/Nrd/build/AT/Complete_Build/$now/ForestCoC_Mobile.war''', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'AT/Complete_Build', remoteDirectorySDF: false, removePrefix: 'ForestCoC_Mobile/target', sourceFiles: 'ForestCoC_Mobile/target/ForestCoC_Mobile.war')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+	}
 
 
-																									stage ('Deploy - War files'){
-																									ansiblePlaybook credentialsId: 'a125e4e8-ca0a-4ad4-bec8-3e83a7c93d57', installation: 'ansible_2.4.2.0', inventory: '/data/NRD-build-automation/AT/hosts', playbook: '/data/NRD-build-automation/AT/NRD_AT_Complete_Build-deployment.yml'
-																									}
+stage ('Deploy - War files'){
+ansiblePlaybook credentialsId: 'a125e4e8-ca0a-4ad4-bec8-3e83a7c93d57', installation: 'ansible_2.4.2.0', inventory: '/data/NRD-build-automation/AT/hosts', playbook: '/data/NRD-build-automation/AT/NRD_AT_Complete_Build-deployment.yml'
+}
 
-																									}
-
+}
