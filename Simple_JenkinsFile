@@ -1,0 +1,13 @@
+node('slave1')  {
+
+    stage ('Checkout-source'){
+        git 'https://github.com/Chranjith-13/Maven_test.git'
+    }
+	
+
+   stage('Build') {
+        
+         sh "mvn clean install"
+      }
+
+}
